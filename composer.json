@@ -1,0 +1,26 @@
+{
+  "name": "zhangshaomin/opentracing-php-thrift",
+  "type": "library",
+  "description": "opentracing-php-thrift",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "minbaby.zhang",
+      "email": "zhangshaomin_1990@126.com"
+    }
+  ],
+  "require": {
+    "opentracing/opentracing": "^1.0.0-beta2",
+    "packaged/thrift": "^0.10.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Minbaby\\OpentracingTrift\\": "src/Minbaby/OpentracingThrift"
+    },
+    "files": [
+      "src/Minbaby/const.php"
+    ]
+  },
+  "minimum-stability": "beta",
+  "prefer-stable": true
+}
