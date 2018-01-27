@@ -10,8 +10,8 @@
     }
   ],
   "require": {
-    "opentracing/opentracing": "^1.0.0-beta2",
-    "packaged/thrift": "^0.10.0"
+    "packaged/thrift": "^0.10.0",
+    "jcchavezs/zipkin": "^1.0"
   },
   "autoload": {
     "psr-4": {

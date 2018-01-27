@@ -4,37 +4,44 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "cd22cb544aa91cd11ddb337a10c8f78a",
+    "content-hash": "e594a5bacd7c3faf27942b10077f4d3d",
     "packages": [
         {
-            "name": "opentracing/opentracing",
-            "version": "1.0.0-beta2",
+            "name": "jcchavezs/zipkin",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/opentracing/opentracing-php.git",
-                "reference": "ef331f2658df33e46d951316bcc80539ace005fb"
+                "url": "https://github.com/jcchavezs/zipkin-php.git",
+                "reference": "99f53a3e973dbea16f66d7a41286018198629db1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/opentracing/opentracing-php/ef331f2658df33e46d951316bcc80539ace005fb.zip",
-                "reference": "ef331f2658df33e46d951316bcc80539ace005fb",
+                "url": "https://files.phpcomposer.com/files/jcchavezs/zipkin-php/99f53a3e973dbea16f66d7a41286018198629db1.zip",
+                "reference": "99f53a3e973dbea16f66d7a41286018198629db1",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.6||^7.0"
+                "php": "^5.6||^7.0",
+                "psr/http-message": "~1.0",
+                "psr/log": "^1.0"
             },
             "require-dev": {
+                "guzzlehttp/psr7": "^1.4",
+                "jcchavezs/httptest": "0.1-beta2",
                 "phpunit/phpunit": "~5.7.19",
                 "squizlabs/php_codesniffer": "3.*"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "OpenTracing\\": "./src/OpenTracing/"
+                    "Zipkin\\": "./src/Zipkin/"
                 },
                 "files": [
-                    "./src/OpenTracing/Ext/Tags.php",
-                    "./src/OpenTracing/Formats.php"
+                    "./src/Zipkin/Propagation/Id.php",
+                    "./src/Zipkin/Timestamp.php",
+                    "./src/Zipkin/Kind.php",
+                    "./src/Zipkin/Tags.php",
+                    "./src/Zipkin/Annotations.php"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -47,8 +54,8 @@
                     "email": "jcchavezs@gmail.com"
                 }
             ],
-            "description": "OpenTracing API for PHP",
-            "time": "2017-11-15T07:59:22+00:00"
+            "description": "A Zipkin instrumentation for PHP",
+            "time": "2018-01-24T08:22:21+00:00"
         },
         {
             "name": "packaged/thrift",
@@ -84,14 +91,109 @@
                 "thrift"
             ],
             "time": "2017-06-05T07:52:51+00:00"
+        },
+        {
+            "name": "psr/http-message",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/http-message.git",
+                "reference": "f6561bf28d520154e4b0ec72be95418abe6d9363"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://files.phpcomposer.com/files/php-fig/http-message/f6561bf28d520154e4b0ec72be95418abe6d9363.zip",
+                "reference": "f6561bf28d520154e4b0ec72be95418abe6d9363",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Http\\Message\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "http://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interface for HTTP messages",
+            "homepage": "https://github.com/php-fig/http-message",
+            "keywords": [
+                "http",
+                "http-message",
+                "psr",
+                "psr-7",
+                "request",
+                "response"
+            ],
+            "time": "2016-08-06T14:39:51+00:00"
+        },
+        {
+            "name": "psr/log",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/log.git",
+                "reference": "4ebe3a8bf773a19edfe0a84b6585ba3d401b724d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://files.phpcomposer.com/files/php-fig/log/4ebe3a8bf773a19edfe0a84b6585ba3d401b724d.zip",
+                "reference": "4ebe3a8bf773a19edfe0a84b6585ba3d401b724d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Log\\": "Psr/Log/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "http://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interface for logging libraries",
+            "homepage": "https://github.com/php-fig/log",
+            "keywords": [
+                "log",
+                "psr",
+                "psr-3"
+            ],
+            "time": "2016-10-10T12:19:37+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "beta",
-    "stability-flags": {
-        "opentracing/opentracing": 10
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],

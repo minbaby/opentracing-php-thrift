@@ -2,18 +2,19 @@
 
 namespace Minbaby\OpentracingTrift;
 
-use OpenTracing\Span;
+
+use Zipkin\Span;
+use const Zipkin\Tags\ERROR;
+use const Zipkin\Tags\LOCAL_COMPONENT;
 
 class SpanDecorator
 {
     public static function decorate(Span $span, $name, $type, $seqId)
     {
-        $span->setTags([
-            OPEN_TRACING_TAGS_COMPONENT => OPEN_TRACING_NAME,
-            'message.name' => $name,
-            'message.type' => $type,
-            'message.seqid' => $seqId,
-        ]);
+        $span->tag(LOCAL_COMPONENT, OPEN_TRACING_NAME);
+        $span->tag("message.name", $name);
+        $span->tag("message.type", $type);
+        $span->tag("message.seqid", $seqId);
     }
     
     public static function onError(\Exception $exception, Span $span)
@@ -21,14 +22,13 @@ class SpanDecorator
         if ($span == null) {
             return;
         }
-        $span->setTags([OPEN_TRACING_TAGS_ERROR => true]);
-        $span->log(static::errorLogs($exception));
+        $span->tag(ERROR, true);
     }
     
     private static function errorLogs(\Exception $exception)
     {
         return [
-            'event' => OPEN_TRACING_TAGS_ERROR,
+            'event' => ERROR,
             'error.kind' => get_class($exception),
             'error.object' => $exception,
             'message' => $exception->getMessage(),
