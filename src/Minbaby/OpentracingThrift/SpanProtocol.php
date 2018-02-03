@@ -5,32 +5,25 @@ namespace Minbaby\OpentracingTrift;
 use Thrift\Protocol\TProtocol;
 use Thrift\Protocol\TProtocolDecorator;
 use Thrift\Type\TType;
-use const Zipkin\Kind\CLIENT;
-use const Zipkin\Kind\SERVER;
 use Zipkin\Propagation\Map;
-use Zipkin\Propagation\TraceContext;
-use Zipkin\Span;
-use Zipkin\Tracer;
-use Zipkin\Tracing;
-use Zipkin\TracingBuilder;
+use const Zipkin\Kind\CLIENT;
 
 class SpanProtocol extends TProtocolDecorator
 {
-    /**
-     * @var Tracing
-     */
-    protected $tracing;
-
-    
     const SPAN_FIELD_ID = 3333;
+    
+    /**
+     * @var MT
+     */
+    protected $mt;
     
     /**
      * @inheritdoc
      */
-    protected function __construct(TProtocol $protocol, Tracing $tracing)
+    public function __construct(TProtocol $protocol, MT $mt)
     {
         parent::__construct($protocol);
-        $this->tracing = $tracing;
+        $this->mt = $mt;
     }
     
     /**
@@ -38,7 +31,7 @@ class SpanProtocol extends TProtocolDecorator
      */
     public function writeMessageBegin($name, $type, $seqid)
     {
-        $activeSpan = $this->tracing->getTracer()->newTrace();
+        $activeSpan = $this->mt->getTacker()->newTrace();
         $activeSpan->setKind(CLIENT);
         
         SpanDecorator::decorate($activeSpan, $name, $type, $seqid);
@@ -50,10 +43,10 @@ class SpanProtocol extends TProtocolDecorator
     {
         $this->writeFieldBegin('span', TType::MAP, static::SPAN_FIELD_ID);
         
-        $injector = $this->tracing->getPropagation()->getInjector(new Map());
+        $injector = $this->mt->getTracing()->getPropagation()->getInjector(new Map());
     
         $data = [];
-        $injector($this->tracing->getTracer()->getCurrentSpan()->getContext(), $data);
+        $injector($this->mt->getCurrentSpan()->getContext(), $data);
     
         $this->writeMapBegin(TType::STRING, TType::STRING, count($data));
         

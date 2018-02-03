@@ -10,7 +10,7 @@
     }
   ],
   "require": {
-    "packaged/thrift": "^0.10.0",
+    "packaged/thrift": "0.10.0",
     "jcchavezs/zipkin": "^1.0"
   },
   "autoload": {
