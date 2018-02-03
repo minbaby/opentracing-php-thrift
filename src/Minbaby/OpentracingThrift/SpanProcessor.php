@@ -12,7 +12,7 @@ use const Zipkin\Kind\SERVER;
 class SpanProcessor
 {
     /**
-     * @var Mt
+     * @var TracingManager
      */
     protected $mt;
     
@@ -22,7 +22,7 @@ class SpanProcessor
     
     private $seqId;
     
-    public function __construct($handler, Mt $mt)
+    public function __construct($handler, TracingManager $mt)
     {
         $this->handler = $handler;
         $this->mt = $mt;
@@ -49,24 +49,26 @@ class SpanProcessor
         }
         
         try {
-            $span = $this->mt->getTacker()->newTrace();
+            $newInput  = new ServerProtocolDecorator($input, $name, $type, $seqId, $this->mt);
+            
+ 
+            $ret = $this->parentProcess($newInput, $output);
+    
+            $span = $this->mt->getTacker()->newChild($this->mt->getCurrentSpan()->getContext());
             $span->start();
             $span->setKind(SERVER);
             $span->tag('f', 'u');
             $span->tag('c', 'k');
-
-            $ret = $this->parentProcess(new ServerProtocolDecorator($input, $name, $type, $seqId, $this->mt), $output);
-    
+            sleep(0.5);
             $span->finish();
-    
             $this->mt->setCurrentSpan($span);
+    
             return $ret;
         } catch (\Exception $e) {
             SpanDecorator::onError($e, $this->mt->getTacker()->newTrace());
             throw $e;
         } finally {
             $this->mt->getTacker()->flush();
-            \Log::debug(__METHOD__);
         }
     }
     
@@ -76,8 +78,12 @@ class SpanProcessor
         $fname = $this->name;
         $mtype = $this->type;
     
-        $methodname = 'process_'. $fname;
-        if (!method_exists($this, $methodname)) {
+        $methodName = 'process_'. $fname;
+    
+        $reflection = new \ReflectionClass($this->handler);
+        
+        
+        if (!$reflection->hasMethod($methodName)) {
             $input->skip(TType::STRUCT);
             $input->readMessageEnd();
             $x = new TApplicationException('Function '.$fname.' not implemented.', TApplicationException::UNKNOWN_METHOD);
@@ -87,7 +93,12 @@ class SpanProcessor
             $output->getTransport()->flush();
             return;
         }
-        $this->$methodname($rseqid, $input, $output);
+        \Log::debug(__METHOD__, [$methodName]);
+
+        $method = $reflection->getMethod($methodName);
+        $method->setAccessible(true);
+        $method->invoke($this->handler, $rseqid, $input, $output);
+        
         return true;
     }
 }

@@ -1,9 +1,11 @@
 <?php
+
 namespace Minbaby\OpentracingTrift;
 
 use Thrift\Protocol\TProtocol;
 use Thrift\Protocol\TProtocolDecorator;
 use Thrift\Type\TType;
+use Zipkin\Propagation\Map;
 use Zipkin\Tracer;
 
 class ServerProtocolDecorator extends TProtocolDecorator
@@ -12,10 +14,11 @@ class ServerProtocolDecorator extends TProtocolDecorator
     protected $type;
     protected $seqId;
     /**
-     * @var MT
+     * @var TracingManager
      */
     protected $mt;
     
+    private $data = [];
     
     protected $nextSpan = false;
     
@@ -27,7 +30,7 @@ class ServerProtocolDecorator extends TProtocolDecorator
         $name,
         $type,
         $seqId,
-        MT $mt
+        TracingManager $mt
     ) {
         parent::__construct($protocol);
         $this->name = $name;
@@ -52,25 +55,13 @@ class ServerProtocolDecorator extends TProtocolDecorator
     /**
      * @inheritdoc
      */
-    public function readFieldBegin(&$name, &$fieldType, &$fieldId)
-    {
-        if ($fieldId == SpanProtocol::SPAN_FIELD_ID && $fieldType == TType::MAP) {
-            $this->nextSpan = true;
-        }
-        
-        return parent::readFieldBegin($name, $fieldType, $fieldId);
-    }
-    
-    /**
-     * @inheritdoc
-     */
     public function readFieldEnd()
     {
         if ($this->nextSpan) {
             $this->nextSpan = false;
             $this->buildSpan();
         }
-    
+        
         return parent::readFieldEnd();
     }
     
@@ -84,8 +75,35 @@ class ServerProtocolDecorator extends TProtocolDecorator
     
     private function buildSpan()
     {
-        $parent = $this->mt->getTacker()->openScope();
-        $activeSpan = $this->mt->getTacker()->newTrace();
+        $map = [];
+        for ($i = 0; $i < count($this->data); $i += 2) {
+            $map[$this->data[$i]] = $this->data[$i+1];
+        }
+    
+        $extractor = $this->mt->getTracing()->getPropagation()->getExtractor(new Map());
+        
+        \Log::debug(__METHOD__);
+        
+        $activeSpan = $this->mt->getTacker()->joinSpan($extractor($map));
+        $this->mt->setCurrentSpan($activeSpan);
         SpanDecorator::decorate($activeSpan, $this->name, $this->type, $this->seqId);
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function skip($type)
+    {
+        if ($type == TType::MAP) {
+            $this->nextSpan = true;
+        }
+        
+        if ($this->nextSpan === true && TType::STRING == $type) {
+            $v = '';
+            $ret = $this->readString($v);
+            $this->data[] = $v;
+            return $ret;
+        }
+        return parent::skip($type);
     }
 }

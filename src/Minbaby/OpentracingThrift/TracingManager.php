@@ -15,7 +15,7 @@ use Zipkin\Span;
 use Zipkin\Tracer;
 use Zipkin\TracingBuilder;
 
-class MT
+class TracingManager
 {
     /**
      * @var \Zipkin\DefaultTracing
