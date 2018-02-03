@@ -82,10 +82,14 @@ class ServerProtocolDecorator extends TProtocolDecorator
     
         $extractor = $this->mt->getTracing()->getPropagation()->getExtractor(new Map());
         
-        \Log::debug(__METHOD__);
+        $parent = $extractor($map);
         
-        $activeSpan = $this->mt->getTacker()->joinSpan($extractor($map));
-        $this->mt->setCurrentSpan($activeSpan);
+        if (!empty($parent)) {
+            $activeSpan = $this->mt->joinSpan($parent);
+        } else {
+            $activeSpan = $this->mt->newChild(false);
+        }
+        
         SpanDecorator::decorate($activeSpan, $this->name, $this->type, $this->seqId);
     }
     

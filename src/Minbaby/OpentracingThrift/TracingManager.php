@@ -10,6 +10,7 @@ namespace Minbaby\OpentracingTrift;
 
 
 use Zipkin\Endpoint;
+use Zipkin\Propagation\TraceContext;
 use Zipkin\Samplers\BinarySampler;
 use Zipkin\Span;
 use Zipkin\Tracer;
@@ -72,5 +73,40 @@ class TracingManager
     public function setCurrentSpan($currentSpan)
     {
         $this->currentSpan = $currentSpan;
+    }
+    
+    /**
+     * @param TraceContext $context
+     * @return Span
+     */
+    public function joinSpan(TraceContext $context)
+    {
+        $span = $this->getTacker()->joinSpan($context);
+        $this->setCurrentSpan($span);
+        
+        return $span;
+    }
+    
+    /**
+     * @param Span $span
+     */
+    public function finishSpan(Span $span)
+    {
+        $span->finish();
+        $this->setCurrentSpan($span);
+    }
+    
+    /**
+     * @param bool              $hasParent
+     * @param TraceContext|null $parent
+     * @return Span
+     */
+    public function newChild($hasParent = true, TraceContext $parent = null)
+    {
+        if (!$parent && $hasParent) {
+            $parent = $this->getCurrentSpan()->getContext();
+        }
+        
+        return $this->getTacker()->newChild($parent);
     }
 }

@@ -50,19 +50,9 @@ class SpanProcessor
         
         try {
             $newInput  = new ServerProtocolDecorator($input, $name, $type, $seqId, $this->mt);
-            
  
             $ret = $this->parentProcess($newInput, $output);
-    
-            $span = $this->mt->getTacker()->newChild($this->mt->getCurrentSpan()->getContext());
-            $span->start();
-            $span->setKind(SERVER);
-            $span->tag('f', 'u');
-            $span->tag('c', 'k');
-            sleep(0.5);
-            $span->finish();
-            $this->mt->setCurrentSpan($span);
-    
+            
             return $ret;
         } catch (\Exception $e) {
             SpanDecorator::onError($e, $this->mt->getTacker()->newTrace());
